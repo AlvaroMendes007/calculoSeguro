@@ -48,5 +48,11 @@ public class webService {
 
 		return new ResponseEntity<>(teste1, HttpStatus.OK);
 	}
+	
+	//@RequestMapping(value = "/cupom")
+	//public ResponseEntity<Object> teste() throws IOException {
+
+		//IDescontoservice a = new IDescontoservice();
+	//}
 
 }

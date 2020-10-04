@@ -1,36 +1,31 @@
-<definitions name="IDescontoservice"
-	targetNamespace="http://tempuri.org/">
-	<message name="ObterDesconto0Request">
-		<part name="Cupom" type="xs:string" />
-	</message>
-	<message name="ObterDesconto0Response">
-		<part name="return" type="xs:string" />
-	</message>
-	<portType name="IDesconto">
-		<operation name="ObterDesconto">
-			<input message="tns:ObterDesconto0Request" />
-			<output message="tns:ObterDesconto0Response" />
-		</operation>
-	</portType>
-	<binding name="IDescontobinding" type="tns:IDesconto">
-		<binding style="rpc"
-			transport="http://schemas.xmlsoap.org/soap/http" />
-		<operation name="ObterDesconto">
-			<operation
-				soapAction="urn:DescontoIntf-IDesconto#ObterDesconto" style="rpc" />
-			<input>
-				<body use="encoded"
-					encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-					namespace="urn:DescontoIntf-IDesconto" />
-			</input>
-			<output>
-			</output>
-		</operation>
-	</binding>
-	<service name="IDescontoservice">
-		<port name="IDescontoPort" binding="tns:IDescontobinding">
-			<address
-				location="http://www.speedyofficer.com.br/desenvConsulta/DescontoCupom.dll/soap/IDesconto" />
-		</port>
-	</service>
+<definitions name="IDescontoservice" targetNamespace="http://tempuri.org/" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://tempuri.org/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/">
+   <message name="ObterDesconto0Request">
+      <part name="Cupom" type="xs:string"/>
+   </message>
+   <message name="ObterDesconto0Response">
+      <part name="return" type="xs:string"/>
+   </message>
+   <portType name="IDesconto">
+      <operation name="ObterDesconto">
+         <input message="tns:ObterDesconto0Request"/>
+         <output message="tns:ObterDesconto0Response"/>
+      </operation>
+   </portType>
+   <binding name="IDescontobinding" type="tns:IDesconto">
+      <binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" xmlns="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      <operation name="ObterDesconto">
+         <operation soapAction="urn:DescontoIntf-IDesconto#ObterDesconto" style="rpc" xmlns="http://schemas.xmlsoap.org/wsdl/soap/"/>
+         <input>
+            <body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:DescontoIntf-IDesconto" xmlns="http://schemas.xmlsoap.org/wsdl/soap/"/>
+         </input>
+         <output>
+            <body use="literal" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="urn:DescontoIntf-IDesconto" xmlns="http://schemas.xmlsoap.org/wsdl/soap/"/>
+         </output>
+      </operation>
+   </binding>
+   <service name="IDescontoservice">
+      <port name="IDescontoPort" binding="tns:IDescontobinding">
+         <address location="http://www.speedyofficer.com.br/desenvConsulta/DescontoCupom.dll/soap/IDesconto" xmlns="http://schemas.xmlsoap.org/wsdl/soap/"/>
+      </port>
+   </service>
 </definitions>
