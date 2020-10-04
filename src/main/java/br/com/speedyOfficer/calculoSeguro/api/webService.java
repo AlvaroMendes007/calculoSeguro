@@ -59,14 +59,14 @@ public class webService {
 		return (Double) teste2.get("valor_veiculo");
 	}
 
-	@RequestMapping(value = "/cupom/{cupom}")
-	public String getDescontoCupomByCupom(@PathVariable String codCupom) throws IOException {
+	public JSONObject getDescontoCupomByCupom(String codCupom) throws IOException {
 
 		IDescontoservice cupom = new IDescontoservice();
 		JSONObject objCupom = (JSONObject) XML.toJSONObject(cupom.getIDescontoPort().obterDesconto(codCupom))
 				.get("cupom");
 
-		return objCupom.get("percentualDesconto").toString().replace(",", ".");
+		// return objCupom.get("percentualDesconto").toString().replace(",", ".");
+		return objCupom;
 	}
 
 	@RequestMapping(value = "/calculo")
@@ -76,23 +76,48 @@ public class webService {
 
 		JSONObject sexoInvalido = new JSONObject(
 				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
-		
+
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Double valorVeiculo = getVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
 		DecimalFormat decimalFormat = new DecimalFormat("####.00");
-		
-		String[] split = dataNascimento.split("/");	
-		
+
+		String[] split = dataNascimento.split("/");
+
 		int dia = Integer.parseInt(split[0]);
 		int mes = Integer.parseInt(split[1]);
 		int ano = Integer.parseInt(split[2]);
-						
-		Period diff = Period.between(LocalDate.of(ano,mes,dia), LocalDate.now());
+
+		Period calculoIdade = Period.between(LocalDate.of(ano, mes, dia), LocalDate.now());
+
+		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
 		
-		System.out.println(diff.toString().substring(1, 3));
+		String mensagemSucessoCupom = (codigoCupom == null ? 
+				"false" 
+				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
+		
+		Double percentualDescontoCupom = (mensagemSucessoCupom.equals("true") ? 
+				Double.parseDouble(getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ".")) 
+				: 0.0);
+		
+		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
+
+		Double acrescimoIdade = 0.0;
+
+		if (idade >= 18 || idade <= 25) {
+			acrescimoIdade = 0.10;
+		} else if (idade >= 26 || idade <= 30) {
+			acrescimoIdade = 0.5;
+		} else if (idade >= 31 || idade <= 35) {
+			acrescimoIdade = 0.2;
+		}
 
 		Double acrescimoParcelas = 0.0;
+		
+		Double acrescimoTotal = acrescimoSexo + acrescimoIdade;
+		
+		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
+				
 		Map<Integer, Double> a = new HashMap<>();
 
 		for (int parcela = 1; parcela <= 12; parcela++) {
@@ -104,8 +129,9 @@ public class webService {
 				acrescimoParcelas = 0.05;
 			}
 
-			Double valorTotalSeguro = (baseSeguro + baseSeguro * acrescimoParcelas) / parcela;
-
+			Double valorTotalSeguro = (totalBase + totalBase * acrescimoParcelas) / parcela;
+			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
+			
 			a.put(parcela, (valorTotalSeguro));
 		}
 
@@ -116,4 +142,3 @@ public class webService {
 	}
 
 }
-
