@@ -23,12 +23,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tempuri.IDescontoservice;
 import org.apache.commons.collections.map.HashedMap;
+import org.hibernate.validator.constraints.br.CNPJ;
 import org.json.JSONObject;
 import org.json.XML;
 
 @RestController
 public class webService {
-	
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {
 		return "<html> <body> <a href='/calculo?cpfCnpj=&sexo=&dataNascimento=&codigoVeiculo=&codigoCupom='> Calculo </a> </body> </html>";
@@ -75,17 +76,20 @@ public class webService {
 	}
 
 	@RequestMapping(value = "/calculo")
-	public ResponseEntity<Object> calculo(@RequestParam String cpfCnpj, @RequestParam String sexo,
+	public ResponseEntity<Object> calculo(@RequestParam String nome, String cpfCnpj, @RequestParam String sexo,
 			@RequestParam String dataNascimento, @RequestParam int codigoVeiculo,
 			@RequestParam(required = false) String codigoCupom) throws Exception {
 
 		JSONObject sexoInvalido = new JSONObject(
 				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
 
+		JSONObject campoInvalido = new JSONObject(
+				"{codigoHttp: 400, Mensagem: Verifique se todos campos estão preenchidos}");
+
 		new SimpleDateFormat("dd/MM/yyyy");
 		Double valorVeiculo = getVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
-		//DecimalFormat decimalFormat = new DecimalFormat("####.00");
+		DecimalFormat decimalFormat = new DecimalFormat("####.00");
 
 		String[] split = dataNascimento.split("/");
 
@@ -108,32 +112,28 @@ public class webService {
 		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
 
 		Double acrescimoIdade = (idade >= 18 && idade <= 25 ? 0.10
-				: (idade >= 26 && idade <= 30 ? 0.05 
-			    : (idade >= 31 && idade <= 35 ? 0.02 
-			    : 0.0)));
+				: (idade >= 26 && idade <= 30 ? 0.05 : (idade >= 31 && idade <= 35 ? 0.02 : 0.0)));
 
 		Double acrescimoTotal = acrescimoSexo + acrescimoIdade;
 
 		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
 
-		System.out.println("idade = " + idade + "\npercentual Idade = " + acrescimoIdade);
-
 		Map<Integer, Double> parcelaMap = new HashMap<>();
 
 		for (int parcela = 1; parcela <= 12; parcela++) {
-			
+
 			Double acrescimoParcelas = (parcela >= 6 && parcela <= 9 ? 0.03 : (parcela > 9) ? 0.05 : 0.0);
-			
+
 			Double valorTotalSeguro = (totalBase + totalBase * acrescimoParcelas) / parcela;
-			
+
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
 
-			parcelaMap.put(parcela, (valorTotalSeguro));
+			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
 		}
 
 		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
-
-		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
+		
+	    if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
 			return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
