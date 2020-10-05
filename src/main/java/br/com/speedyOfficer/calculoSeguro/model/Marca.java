@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Marca implements Serializable {
@@ -12,6 +13,9 @@ public class Marca implements Serializable {
 	@Id
 	private int codigoMarca;
 	private String descricaoMarca;
+	
+	@OneToOne(mappedBy = "codigoMarca")
+	private Veiculo veiculo;
 	
 	public Marca() {
 	}

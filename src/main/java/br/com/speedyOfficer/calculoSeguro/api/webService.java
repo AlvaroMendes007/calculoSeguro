@@ -1,69 +1,44 @@
 package br.com.speedyOfficer.calculoSeguro.api;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+import org.json.XML;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tempuri.IDescontoservice;
-import org.apache.commons.collections.map.HashedMap;
-import org.hibernate.validator.constraints.br.CNPJ;
-import org.json.JSONObject;
-import org.json.XML;
+
+import br.com.speedyOfficer.calculoSeguro.controller.veiculoController;
+import br.com.speedyOfficer.calculoSeguro.model.Calculo;
+import br.com.speedyOfficer.calculoSeguro.model.Cliente;
+import br.com.speedyOfficer.calculoSeguro.model.Marca;
+import br.com.speedyOfficer.calculoSeguro.model.Veiculo;
+import br.com.speedyOfficer.calculoSeguro.service.CalculoService;
+import br.com.speedyOfficer.calculoSeguro.service.ClienteService;
 
 @RestController
 public class webService {
 
+	@Autowired
+	private CalculoService calculoService;
+
+	@Autowired
+	private ClienteService clienteService;
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {
 		return "<html> <body> <a href='/calculo?cpfCnpj=&sexo=&dataNascimento=&codigoVeiculo=&codigoCupom='> Calculo </a> </body> </html>";
-	}
-
-	public Double getVeiculoByCod(int codVeiculo) throws IOException {
-
-		URL obj = new URL(
-				"http://www.speedyofficer.com.br/desenvVeiculos/wsRstSpeedyVeiculos_Case.dll/veiculo?cod_veiculo="
-						+ codVeiculo);
-		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-		con.setRequestMethod("GET");
-		con.setRequestProperty("User-Agent", "Mozilla/5.0");
-		con.setRequestProperty("X-Aurum-Auth", "aW50ZWdyYWNhbzo0YTZkMjU5NGNjMDE2OGQ1NTg0YzE1NmQzYTYzZTFkNw==");
-		con.setRequestProperty("Content-Language", "pt-BR");
-		con.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-
-		in.close();
-
-		JSONObject jsonObj = new JSONObject(response.toString());
-		Object responseVeiculos = jsonObj.toMap().get("veiculos");
-		Map<String, Object> dadosVeiculos = new JSONObject(
-				responseVeiculos.toString().replace("[", "").replace("=", ":").replace(",00", ".00")).toMap();
-
-		return (Double) dadosVeiculos.get("valor_veiculo");
 	}
 
 	public JSONObject getDescontoCupomByCupom(String codCupom) throws IOException {
@@ -83,15 +58,24 @@ public class webService {
 		JSONObject sexoInvalido = new JSONObject(
 				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
 
-		JSONObject campoInvalido = new JSONObject(
-				"{codigoHttp: 400, Mensagem: Verifique se todos campos estão preenchidos}");
-
+		JSONObject codigoVeiculoInvalido = new JSONObject(
+				"{codigoHttp: 400, Mensagem: Verifique o código do veículo, Dica: O código digitado pode não estar correto}");
+		
+		
+		veiculoController veiculoController = new veiculoController();
 		new SimpleDateFormat("dd/MM/yyyy");
-		Double valorVeiculo = getVeiculoByCod(codigoVeiculo);
+		Double valorVeiculo = veiculoController.getValorVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
 		DecimalFormat decimalFormat = new DecimalFormat("####.00");
 
 		String[] split = dataNascimento.split("/");
+		
+		String descricaoVeiculo = veiculoController.getDescricaoVeiculoByCod(codigoVeiculo);
+		int codigoMarcaVeiculo = veiculoController.getMarcaVeiculoByCod(codigoVeiculo);
+		Marca marcaVeiculo = new Marca();
+		marcaVeiculo.setId(codigoMarcaVeiculo);
+		
+		Veiculo veiculo = new Veiculo(codigoVeiculo, descricaoVeiculo, valorVeiculo, marcaVeiculo);
 
 		int dia = Integer.parseInt(split[0]);
 		int mes = Integer.parseInt(split[1]);
@@ -100,6 +84,10 @@ public class webService {
 		Period calculoIdade = Period.between(LocalDate.of(ano, mes, dia), LocalDate.now());
 
 		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
+		
+		//String dataFormatada = ano + "-" + mes + "-" + dia;
+		
+		Cliente cliente = new Cliente(cpfCnpj, nome, sexo, new SimpleDateFormat("dd/MM/yyyy").parse(dataNascimento), idade);
 
 		String mensagemSucessoCupom = (codigoCupom == null ? "false"
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
@@ -129,16 +117,21 @@ public class webService {
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
 
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
+			
+			Calculo calculo = new Calculo(1, 200.00, 400.00, "XABLAU", 0.03, 1, cliente, veiculo);
 		}
 
 		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
-		
-	    if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
-			return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
-		}
 
+		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
+			if (baseSeguro == 0.0) {
+				return new ResponseEntity<>(codigoVeiculoInvalido.toMap(), HttpStatus.BAD_REQUEST);
+			} else {
+				return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
+			}
+		} else
+			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
 	}
 
 }
+
