@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.tempuri.IDescontoservice;
@@ -27,6 +28,11 @@ import org.json.XML;
 
 @RestController
 public class webService {
+	
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public String home() {
+		return "<html> <body> <a href='/calculo?cpfCnpj=&sexo=&dataNascimento=&codigoVeiculo=&codigoCupom='> Calculo </a> </body> </html>";
+	}
 
 	public Double getVeiculoByCod(int codVeiculo) throws IOException {
 
@@ -51,12 +57,12 @@ public class webService {
 
 		in.close();
 
-		JSONObject teste = new JSONObject(response.toString());
-		Object teste1 = teste.toMap().get("veiculos");
-		Map<String, Object> teste2 = new JSONObject(
-				teste1.toString().replace("[", "").replace("=", ":").replace(",00", ".00")).toMap();
+		JSONObject jsonObj = new JSONObject(response.toString());
+		Object responseVeiculos = jsonObj.toMap().get("veiculos");
+		Map<String, Object> dadosVeiculos = new JSONObject(
+				responseVeiculos.toString().replace("[", "").replace("=", ":").replace(",00", ".00")).toMap();
 
-		return (Double) teste2.get("valor_veiculo");
+		return (Double) dadosVeiculos.get("valor_veiculo");
 	}
 
 	public JSONObject getDescontoCupomByCupom(String codCupom) throws IOException {
@@ -76,10 +82,10 @@ public class webService {
 		JSONObject sexoInvalido = new JSONObject(
 				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		new SimpleDateFormat("dd/MM/yyyy");
 		Double valorVeiculo = getVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
-		DecimalFormat decimalFormat = new DecimalFormat("####.00");
+		//DecimalFormat decimalFormat = new DecimalFormat("####.00");
 
 		String[] split = dataNascimento.split("/");
 
@@ -95,48 +101,40 @@ public class webService {
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
 
 		Double percentualDescontoCupom = (mensagemSucessoCupom.equals("true")
-				? Double.parseDouble(
-						"0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
+				? Double.parseDouble("0.0"
+						+ getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
 				: 0.0);
 
 		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
 
-		Double acrescimoIdade = 0.0;
-
-		if (idade >= 18 || idade <= 25) {
-			acrescimoIdade = 0.10;
-		} else if (idade >= 26 || idade <= 30) {
-			acrescimoIdade = 0.5;
-		} else if (idade >= 31 || idade <= 35) {
-			acrescimoIdade = 0.2;
-		}
-
-		Double acrescimoParcelas = 0.0;
+		Double acrescimoIdade = (idade >= 18 && idade <= 25 ? 0.10
+				: (idade >= 26 && idade <= 30 ? 0.05 
+			    : (idade >= 31 && idade <= 35 ? 0.02 
+			    : 0.0)));
 
 		Double acrescimoTotal = acrescimoSexo + acrescimoIdade;
 
 		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
 
-		Map<Integer, Double> a = new HashMap<>();
+		System.out.println("idade = " + idade + "\npercentual Idade = " + acrescimoIdade);
+
+		Map<Integer, Double> parcelaMap = new HashMap<>();
 
 		for (int parcela = 1; parcela <= 12; parcela++) {
-			if (parcela >= 6 && parcela <= 9) {
-				acrescimoParcelas = 0.03;
-			}
-			if (parcela > 9) {
-				acrescimoParcelas = 0.05;
-			}
-
+			
+			Double acrescimoParcelas = (parcela >= 6 && parcela <= 9 ? 0.03 : (parcela > 9) ? 0.05 : 0.0);
+			
 			Double valorTotalSeguro = (totalBase + totalBase * acrescimoParcelas) / parcela;
+			
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
 
-			a.put(parcela, (valorTotalSeguro));
+			parcelaMap.put(parcela, (valorTotalSeguro));
 		}
 
-		JSONObject b = new JSONObject("{parcelas: [" + a.toString().replace("=", ":") + "]}");
+		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
 
 		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
-			return new ResponseEntity<>(b.toMap(), HttpStatus.OK);
+			return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
 		}
