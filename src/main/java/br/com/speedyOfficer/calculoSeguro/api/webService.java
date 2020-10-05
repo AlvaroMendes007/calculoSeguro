@@ -65,7 +65,6 @@ public class webService {
 		JSONObject objCupom = (JSONObject) XML.toJSONObject(cupom.getIDescontoPort().obterDesconto(codCupom))
 				.get("cupom");
 
-		// return objCupom.get("percentualDesconto").toString().replace(",", ".");
 		return objCupom;
 	}
 
@@ -91,15 +90,15 @@ public class webService {
 		Period calculoIdade = Period.between(LocalDate.of(ano, mes, dia), LocalDate.now());
 
 		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
-		
-		String mensagemSucessoCupom = (codigoCupom == null ? 
-				"false" 
+
+		String mensagemSucessoCupom = (codigoCupom == null ? "false"
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
-		
-		Double percentualDescontoCupom = (mensagemSucessoCupom.equals("true") ? 
-				Double.parseDouble(getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ".")) 
+
+		Double percentualDescontoCupom = (mensagemSucessoCupom.equals("true")
+				? Double.parseDouble(
+						"0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
 				: 0.0);
-		
+
 		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
 
 		Double acrescimoIdade = 0.0;
@@ -113,15 +112,14 @@ public class webService {
 		}
 
 		Double acrescimoParcelas = 0.0;
-		
+
 		Double acrescimoTotal = acrescimoSexo + acrescimoIdade;
-		
+
 		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
-				
+
 		Map<Integer, Double> a = new HashMap<>();
 
 		for (int parcela = 1; parcela <= 12; parcela++) {
-			// a.put(1, (1395 + 1395 * 0.03) / 6);
 			if (parcela >= 6 && parcela <= 9) {
 				acrescimoParcelas = 0.03;
 			}
@@ -131,13 +129,17 @@ public class webService {
 
 			Double valorTotalSeguro = (totalBase + totalBase * acrescimoParcelas) / parcela;
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
-			
+
 			a.put(parcela, (valorTotalSeguro));
 		}
 
 		JSONObject b = new JSONObject("{parcelas: [" + a.toString().replace("=", ":") + "]}");
 
-		return new ResponseEntity<>(b.toMap(), HttpStatus.OK);
+		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
+			return new ResponseEntity<>(b.toMap(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
+		}
 
 	}
 
