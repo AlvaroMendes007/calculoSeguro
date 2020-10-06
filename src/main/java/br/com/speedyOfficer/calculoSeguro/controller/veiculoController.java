@@ -39,52 +39,52 @@ public class veiculoController implements CommandLineRunner {
 
 		// Marca Ford
 		Veiculo Ka = new Veiculo(105063, "Ka", 45000.00, marcaFord);
-		/*Veiculo Fusion = new Veiculo(104587, "Fusion", 150000.00, marcaFord);
+		Veiculo Fusion = new Veiculo(104587, "Fusion", 150000.00, marcaFord);
 		Veiculo Fiesta = new Veiculo(106354, "Fiesta", 51000.00, marcaFord);
 		Veiculo Ranger = new Veiculo(108954, "Ranger", 128250.00, marcaFord);
-		Veiculo Ecosport = new Veiculo(102540, "Ecosport", 72000.00, marcaFord);*/
+		Veiculo Ecosport = new Veiculo(102540, "Ecosport", 72000.00, marcaFord);
 
 		Marca marcaVolkswagen = new Marca();
 		marcaVolkswagen.setId(20);
 
 		// Marca Volkswagen
 		Veiculo Gol = new Veiculo(205123, "Gol", 43500.00, marcaVolkswagen);
-		/*Veiculo Jetta = new Veiculo(204178, "Jetta", 110000.00, marcaVolkswagen);
+		Veiculo Jetta = new Veiculo(204178, "Jetta", 110000.00, marcaVolkswagen);
 		Veiculo Voyage = new Veiculo(203410, "Voyage", 44000.00, marcaVolkswagen);
 		Veiculo Polo = new Veiculo(202435, "Polo", 50000.00, marcaVolkswagen);
-		Veiculo Golf = new Veiculo(201021, "Golf", 92000.00, marcaVolkswagen);*/
+		Veiculo Golf = new Veiculo(201021, "Golf", 92000.00, marcaVolkswagen);
 
 		Marca marcaChevrolet = new Marca();
 		marcaChevrolet.setId(30);
 
 		// Marca Chevrolet
 		Veiculo Onix = new Veiculo(305111, "Onix", 42500.00, marcaChevrolet);
-		/*Veiculo PrismaLT = new Veiculo(308621, "Prisma LT", 35590.00, marcaChevrolet);
+		Veiculo PrismaLT = new Veiculo(308621, "Prisma LT", 35590.00, marcaChevrolet);
 		Veiculo CruzeLT = new Veiculo(301478, "Cruze LT", 92000.00, marcaChevrolet);
 		Veiculo TrackerLT = new Veiculo(302541, "Tracker LT", 82000.00, marcaChevrolet);
-		Veiculo CobaltLTZ = new Veiculo(301477, "Cobalt LTZ", 48600.00, marcaChevrolet);*/
+		Veiculo CobaltLTZ = new Veiculo(301477, "Cobalt LTZ", 48600.00, marcaChevrolet);
 
 		Marca marcaFiat = new Marca();
 		marcaFiat.setId(40);
 
 		// Marca Fiat
 		Veiculo Argo = new Veiculo(406621, "Argo", 49500.00, marcaFiat);
-		/*Veiculo Cronos = new Veiculo(407782, "Cronos", 59000.00, marcaFiat);
+		Veiculo Cronos = new Veiculo(407782, "Cronos", 59000.00, marcaFiat);
 		Veiculo Uno = new Veiculo(403210, "Uno", 46500.00, marcaFiat);
 		Veiculo Doblo = new Veiculo(405471, "Doblò", 95500.00, marcaFiat);
-		Veiculo Weekend = new Veiculo(404126, "Weekend", 69000.00, marcaFiat);*/
+		Veiculo Weekend = new Veiculo(404126, "Weekend", 69000.00, marcaFiat);
 
 		Marca marcaHyundai = new Marca();
 		marcaHyundai.setId(50);
 
 		// Marca Hyundai
 		Veiculo HB20 = new Veiculo(505326, "HB20", 46500.00, marcaHyundai);
-		//Veiculo HB20S = new Veiculo(507230, "HB20S", 55500.00, marcaHyundai);
+		Veiculo HB20S = new Veiculo(507230, "HB20S", 55500.00, marcaHyundai);
 
-		veiculoRepository.saveAll(Arrays.asList(Ka, Gol, Onix, Argo, HB20));
+		//veiculoRepository.saveAll(Arrays.asList(Ka, Gol, Onix, Argo, HB20));
 		
-		//veiculoRepository.saveAll(Arrays.asList(Ka, Fusion, Fiesta, Ranger, Ecosport, Gol, Jetta, Voyage, Polo, Golf,
-				//Onix, PrismaLT, CruzeLT, TrackerLT, CobaltLTZ, Argo, Cronos, Uno, Doblo, Weekend, HB20, HB20S));
+		veiculoRepository.saveAll(Arrays.asList(Ka, Fusion, Fiesta, Ranger, Ecosport, Gol, Jetta, Voyage, Polo, Golf,
+				Onix, PrismaLT, CruzeLT, TrackerLT, CobaltLTZ, Argo, Cronos, Uno, Doblo, Weekend, HB20, HB20S));
 
 	}
 

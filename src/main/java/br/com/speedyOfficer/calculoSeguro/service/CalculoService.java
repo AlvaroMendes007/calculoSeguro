@@ -15,8 +15,8 @@ public class CalculoService {
 	CalculoRepository calculo;
 	
 	public void insert(Calculo calculoInseridos){
-		System.out.println("inserindo calculo...");
-		calculo.saveAll(Arrays.asList(calculoInseridos));
-		System.out.println("inseriu calculo...");
+		
+		calculo.save(calculoInseridos);
+		System.out.println("Calculo = " + calculoInseridos.getParcela());
 	}
 }

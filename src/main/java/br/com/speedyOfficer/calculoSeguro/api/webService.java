@@ -58,7 +58,6 @@ public class webService {
 				"{codigoHttp: 400, Mensagem: Verifique o código do veículo, Dica: O código digitado pode não estar correto}");
 
 		veiculoController veiculoController = new veiculoController();
-		new SimpleDateFormat("dd/MM/yyyy");
 		Double valorVeiculo = veiculoController.getValorVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
 		DecimalFormat decimalFormat = new DecimalFormat("####.00");
@@ -82,10 +81,17 @@ public class webService {
 		String mensagemSucessoCupom = (codigoCupom == null ? "false"
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
 
-		Double percentualDescontoCupom = (mensagemSucessoCupom.equals("true")
-				? Double.parseDouble("0.0"
-						+ getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
-				: 0.0);
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		String[] split = getDescontoCupomByCupom(codigoCupom).get("validade").toString().split("-");
+		int ano = Integer.parseInt(split[0]);
+		int mes = Integer.parseInt(split[1]);
+		int dia = Integer.parseInt(split[2]);
+		Period calculoCupom = Period.between(LocalDate.now(), LocalDate.of(ano, mes, dia));
+				
+		Double percentualDescontoCupom = calculoCupom.getDays() >= 0 
+				? mensagemSucessoCupom.equals("true")
+				? Double.parseDouble("0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
+				: 0.0 : 0.0;
 
 		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
 
@@ -98,8 +104,6 @@ public class webService {
 
 		Map<Integer, Double> parcelaMap = new HashMap<>();
 		
-		System.out.println("antes do for");
-
 		for (int parcela = 1; parcela <= 12; parcela++) {
 
 			Double acrescimoParcelas = (parcela >= 6 && parcela <= 9 ? 0.03 : (parcela > 9) ? 0.05 : 0.0);
@@ -110,20 +114,13 @@ public class webService {
 
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
 
-			System.out.println("antes do calculo");
-			Calculo calculo = new Calculo(null, baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom,
+			Calculo calculo = new Calculo((long) cliente.getId(), baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom,
 					parcela, cliente, veiculo);
-			
-			System.out.println("antes do calculoservice");
-			
+						
 			//calculoService.insert(calculo);
-			//System.out.println("calculo é = " + calculo.getValorTotal());
+			
 		}
 		
-		Calculo calculo = new Calculo((long) cliente.getId(), 2.0, 3.0, "abc", 0.3, 1, cliente, veiculo);
-		
-		calculoService.insert(calculo);
-
 		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
 
 		if (baseSeguro == 0.0) {

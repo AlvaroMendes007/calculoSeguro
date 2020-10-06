@@ -1,6 +1,7 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,8 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -32,7 +33,7 @@ public class Calculo implements Serializable {
 	@JoinColumn(name = "fk_idCliente", referencedColumnName = "idCliente")
 	private Cliente clienteId;
 
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_codigoVeiculo", referencedColumnName = "codigoVeiculo")
 	private Veiculo codigoVeiculo;
@@ -50,7 +51,7 @@ public class Calculo implements Serializable {
 		this.percentualDesconto = percentualDesconto;
 		this.parcela = parcela;
 		this.clienteId = clienteId;
-		this.codigoVeiculo = codigoVeiculo;
+		this.codigoVeiculo = (Veiculo) codigoVeiculo;
 	}
 
 	public Long getIdCalculo() {
@@ -110,11 +111,11 @@ public class Calculo implements Serializable {
 	}
 
 	public Veiculo getCodigoVeiculo() {
-		return codigoVeiculo;
+		return (Veiculo) codigoVeiculo;
 	}
 
 	public void setCodigoVeiculo(Veiculo codigoVeiculo) {
-		this.codigoVeiculo = codigoVeiculo;
+		this.codigoVeiculo = (Veiculo) codigoVeiculo;
 	}
 
 	@Override
