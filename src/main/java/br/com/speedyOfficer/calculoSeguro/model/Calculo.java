@@ -3,6 +3,7 @@ package br.com.speedyOfficer.calculoSeguro.model;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -19,9 +20,18 @@ import org.hibernate.annotations.CascadeType;
 public class Calculo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long idCalculo;
+	@EmbeddedId
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	private CalculoID idCalculo;
+	
+	public CalculoID getIdCalculo() {
+		return idCalculo;
+	}
+
+	public void setIdCalculo(CalculoID idCalculo) {
+		this.idCalculo = idCalculo;
+	}
+
 	private Double valorBase;
 	private Double valorTotal;
 	private String codigoCupom;
@@ -41,10 +51,9 @@ public class Calculo implements Serializable {
 	public Calculo() {
 	}
 
-	public Calculo(Long idCalculo, Double valorBase, Double valorTotal, String codigoCupom, Double percentualDesconto,
+	public Calculo(Double valorBase, Double valorTotal, String codigoCupom, Double percentualDesconto,
 			int parcela, Cliente clienteId, Veiculo codigoVeiculo) {
 		super();
-		this.idCalculo = idCalculo;
 		this.valorBase = valorBase;
 		this.valorTotal = valorTotal;
 		this.codigoCupom = codigoCupom;
@@ -52,14 +61,6 @@ public class Calculo implements Serializable {
 		this.parcela = parcela;
 		this.clienteId = clienteId;
 		this.codigoVeiculo = (Veiculo) codigoVeiculo;
-	}
-
-	public Long getIdCalculo() {
-		return idCalculo;
-	}
-
-	public void setIdCalculo(Long idCalculo) {
-		this.idCalculo = idCalculo;
 	}
 
 	public Double getValorBase() {
@@ -118,38 +119,6 @@ public class Calculo implements Serializable {
 		this.codigoVeiculo = (Veiculo) codigoVeiculo;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((codigoVeiculo == null) ? 0 : codigoVeiculo.hashCode());
-		result = prime * result + ((clienteId == null) ? 0 : clienteId.hashCode());
-		result = (int) (prime * result + idCalculo);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Calculo other = (Calculo) obj;
-		if (codigoVeiculo == null) {
-			if (other.codigoVeiculo != null)
-				return false;
-		} else if (!codigoVeiculo.equals(other.codigoVeiculo))
-			return false;
-		if (clienteId == null) {
-			if (other.clienteId != null)
-				return false;
-		} else if (!clienteId.equals(other.clienteId))
-			return false;
-		if (idCalculo != other.idCalculo)
-			return false;
-		return true;
-	}
+	
 
 }

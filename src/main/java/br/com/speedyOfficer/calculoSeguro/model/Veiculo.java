@@ -1,14 +1,11 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cascade;
@@ -29,8 +26,8 @@ public class Veiculo  implements Serializable{
 	@JoinColumn(name = "fk_idMarca", referencedColumnName = "codigoMarca")
 	private Marca codigoMarca;
 	
-	@OneToMany(mappedBy = "codigoVeiculo")
-	private List<Calculo> calculo;
+	//@OneToOne
+	//private Calculo calculo;
 	
 	public Veiculo() {
 	}
@@ -99,6 +96,5 @@ public class Veiculo  implements Serializable{
 			return false;
 		return true;
 	}
-	
 	
 }

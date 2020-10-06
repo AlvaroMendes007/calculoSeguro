@@ -2,14 +2,13 @@ package br.com.speedyOfficer.calculoSeguro.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -30,8 +29,8 @@ public class Cliente implements Serializable {
 	private Date dataNascimento;
 	private int idade;
 	
-	@OneToMany(mappedBy = "clienteId")
-	private List<Calculo> calculo;
+	//@OneToOne
+	//private Calculo calculo;
 	
 	public Cliente() {
 	}

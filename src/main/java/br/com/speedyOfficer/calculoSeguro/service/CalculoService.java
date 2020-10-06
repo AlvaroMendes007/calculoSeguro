@@ -16,7 +16,7 @@ public class CalculoService {
 	
 	public void insert(Calculo calculoInseridos){
 		
-		calculo.save(calculoInseridos);
+		calculo.saveAll(Arrays.asList(calculoInseridos));
 		System.out.println("Calculo = " + calculoInseridos.getParcela());
 	}
 }

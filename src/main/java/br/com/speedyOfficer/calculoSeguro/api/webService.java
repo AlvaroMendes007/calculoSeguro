@@ -21,6 +21,7 @@ import org.tempuri.IDescontoservice;
 
 import br.com.speedyOfficer.calculoSeguro.controller.veiculoController;
 import br.com.speedyOfficer.calculoSeguro.model.Calculo;
+import br.com.speedyOfficer.calculoSeguro.model.CalculoID;
 import br.com.speedyOfficer.calculoSeguro.model.Cliente;
 import br.com.speedyOfficer.calculoSeguro.model.Marca;
 import br.com.speedyOfficer.calculoSeguro.model.Veiculo;
@@ -69,7 +70,6 @@ public class webService {
 		cliente.setId(clienteService.findIdbyCpf(cpfCnpj));
 		int idade = cliente.getIdade();
 		String sexo = cliente.getSexo();
-		
 
 		String descricaoVeiculo = veiculoController.getDescricaoVeiculoByCod(codigoVeiculo);
 		int codigoMarcaVeiculo = veiculoController.getMarcaVeiculoByCod(codigoVeiculo);
@@ -81,17 +81,20 @@ public class webService {
 		String mensagemSucessoCupom = (codigoCupom == null ? "false"
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
 
-		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-		String[] split = getDescontoCupomByCupom(codigoCupom).get("validade").toString().split("-");
-		int ano = Integer.parseInt(split[0]);
-		int mes = Integer.parseInt(split[1]);
-		int dia = Integer.parseInt(split[2]);
-		Period calculoCupom = Period.between(LocalDate.now(), LocalDate.of(ano, mes, dia));
-				
-		Double percentualDescontoCupom = calculoCupom.getDays() >= 0 
-				? mensagemSucessoCupom.equals("true")
-				? Double.parseDouble("0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
-				: 0.0 : 0.0;
+		Double percentualDescontoCupom = 0.0;
+
+		if (mensagemSucessoCupom.equals("true")) {
+
+			String[] split = getDescontoCupomByCupom(codigoCupom).get("validade").toString().split("-");
+			int ano = Integer.parseInt(split[0]);
+			int mes = Integer.parseInt(split[1]);
+			int dia = Integer.parseInt(split[2]);
+			Period calculoCupom = Period.between(LocalDate.now(), LocalDate.of(ano, mes, dia));
+
+			percentualDescontoCupom = calculoCupom.getDays() >= 0 ? Double.parseDouble(
+					"0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
+					: 0.0;
+		}
 
 		Double acrescimoSexo = (sexo.intern() == "masculino") ? 0.10 : 0.0;
 
@@ -103,7 +106,7 @@ public class webService {
 		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
 
 		Map<Integer, Double> parcelaMap = new HashMap<>();
-		
+
 		for (int parcela = 1; parcela <= 12; parcela++) {
 
 			Double acrescimoParcelas = (parcela >= 6 && parcela <= 9 ? 0.03 : (parcela > 9) ? 0.05 : 0.0);
@@ -114,13 +117,17 @@ public class webService {
 
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
 
-			Calculo calculo = new Calculo((long) cliente.getId(), baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom,
-					parcela, cliente, veiculo);
-						
-			//calculoService.insert(calculo);
+			CalculoID id = new CalculoID();
+			id.setId_calculo(1);
 			
+			Calculo calculo = new Calculo(baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom, parcela,
+					cliente, veiculo);
+
+			calculo.setIdCalculo(id);
+			calculoService.insert(calculo);
+
 		}
-		
+
 		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
 
 		if (baseSeguro == 0.0) {
@@ -149,7 +156,8 @@ public class webService {
 
 		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
 
-		Cliente cliente = new Cliente(cpfCnpj, nome, sexo, new SimpleDateFormat("dd/MM/yyyy").parse(dataNascimento), idade);
+		Cliente cliente = new Cliente(cpfCnpj, nome, sexo, new SimpleDateFormat("dd/MM/yyyy").parse(dataNascimento),
+				idade);
 
 		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
 
