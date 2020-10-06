@@ -1,25 +1,33 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
-import javax.persistence.CascadeType;
+import java.io.Serializable;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 
 @Entity
-public class Veiculo {
-
+public class Veiculo  implements Serializable{
+	private static final long serialVersionUID = 1L;
+	
 	@Id
 	private int codigoVeiculo;
 	private String descricaoVeiculo;
 	private Double valorVeiculo;
 	
-	@OneToOne
-	@JoinColumn(name = "fk_CodigoMarca",referencedColumnName = "codigoMarca")
+	@ManyToOne
+	@Cascade(value = CascadeType.ALL)
+	@JoinColumn(name = "fk_idMarca", referencedColumnName = "codigoMarca")
 	private Marca codigoMarca;
 	
-	@OneToOne(mappedBy = "codigoVeiculo", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(mappedBy = "codigoVeiculo")
 	private Calculo calculo;
 	
 	public Veiculo() {
@@ -30,7 +38,7 @@ public class Veiculo {
 		this.codigoVeiculo = codigoVeiculo;
 		this.descricaoVeiculo = descricaoVeiculo;
 		this.valorVeiculo = valorVeiculo;
-		this.codigoMarca = codigoMarca;
+		this.codigoMarca = (Marca) codigoMarca;
 	}
 
 	public int getCodigoVeiculo() {
@@ -58,18 +66,18 @@ public class Veiculo {
 	}
 
 	public Marca getCodigoMarca() {
-		return codigoMarca;
+		return (Marca) codigoMarca;
 	}
 
 	public void setCodigoMarca(Marca codigoMarca) {
-		this.codigoMarca = codigoMarca;
+		this.codigoMarca = (Marca) codigoMarca;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + codigoMarca.getId();
+		result = prime * result + ((Marca) codigoMarca).getId();
 		result = prime * result + codigoVeiculo;
 		return result;
 	}

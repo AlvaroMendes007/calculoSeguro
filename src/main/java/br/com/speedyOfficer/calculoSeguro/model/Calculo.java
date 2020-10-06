@@ -27,7 +27,7 @@ public class Calculo implements Serializable {
 	private Double percentualDesconto;
 	private int parcela;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_idCliente", referencedColumnName = "idCliente")
 	private Cliente clienteId;

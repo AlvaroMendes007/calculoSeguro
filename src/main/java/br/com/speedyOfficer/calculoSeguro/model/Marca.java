@@ -1,10 +1,11 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Marca implements Serializable {
@@ -14,8 +15,8 @@ public class Marca implements Serializable {
 	private int codigoMarca;
 	private String descricaoMarca;
 	
-	@OneToOne(mappedBy = "codigoMarca")
-	private Veiculo veiculo;
+	@OneToMany(mappedBy = "codigoMarca")	
+	private List<Veiculo> veiculo;
 	
 	public Marca() {
 	}
