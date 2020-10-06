@@ -20,15 +20,15 @@ import org.hibernate.annotations.CascadeType;
 public class Calculo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@EmbeddedId
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	private CalculoID idCalculo;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int idCalculo;
 	
-	public CalculoID getIdCalculo() {
+	public int getIdCalculo() {
 		return idCalculo;
 	}
 
-	public void setIdCalculo(CalculoID idCalculo) {
+	public void setIdCalculo(int idCalculo) {
 		this.idCalculo = idCalculo;
 	}
 
@@ -39,12 +39,10 @@ public class Calculo implements Serializable {
 	private int parcela;
 
 	@ManyToOne
-	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_idCliente", referencedColumnName = "idCliente")
 	private Cliente clienteId;
 
 	@ManyToOne
-	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_codigoVeiculo", referencedColumnName = "codigoVeiculo")
 	private Veiculo codigoVeiculo;
 

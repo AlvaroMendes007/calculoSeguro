@@ -8,16 +8,17 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.SQLInsert;
 
 @Entity
 public class Cliente implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY , generator = "sequence")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private int idCliente;
 	
 	@Column(length=14)
@@ -91,11 +92,12 @@ public class Cliente implements Serializable {
 	public void setIdade(int idade) {
 		this.idade = idade;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((cpfCnpj == null) ? 0 : cpfCnpj.hashCode());
 		result = prime * result + idCliente;
 		return result;
 	}
@@ -109,10 +111,15 @@ public class Cliente implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
+		if (cpfCnpj == null) {
+			if (other.cpfCnpj != null)
+				return false;
+		} else if (!cpfCnpj.equals(other.cpfCnpj))
+			return false;
 		if (idCliente != other.idCliente)
 			return false;
 		return true;
 	}
 	
-	
+
 }

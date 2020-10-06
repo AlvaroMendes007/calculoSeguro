@@ -4,12 +4,13 @@ import java.io.Serializable;
 
 import javax.persistence.Embeddable;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 
 @Embeddable
 public class CalculoID implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id_calculo;
 
 	public int getId_calculo() {

@@ -15,9 +15,8 @@ public class ClienteService {
 	ClienteRepository cliente;
 
 	public void insert(Cliente clienteInserido) {
-		System.out.println("inserindo cliente...");
-		cliente.saveAll(Arrays.asList(clienteInserido));
-		System.out.println("inseriu cliente...");
+		
+			cliente.save(clienteInserido);		
 	}
 
 	public int findIdadeByCpf(String cpf) {

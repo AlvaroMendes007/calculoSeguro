@@ -107,6 +107,9 @@ public class webService {
 
 		Map<Integer, Double> parcelaMap = new HashMap<>();
 
+		CalculoID id = new CalculoID();
+		id.setId_calculo(1);
+		
 		for (int parcela = 1; parcela <= 12; parcela++) {
 
 			Double acrescimoParcelas = (parcela >= 6 && parcela <= 9 ? 0.03 : (parcela > 9) ? 0.05 : 0.0);
@@ -116,14 +119,11 @@ public class webService {
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
 
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
-
-			CalculoID id = new CalculoID();
-			id.setId_calculo(1);
 			
 			Calculo calculo = new Calculo(baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom, parcela,
 					cliente, veiculo);
 
-			calculo.setIdCalculo(id);
+			//calculo.setIdCalculo(id);
 			calculoService.insert(calculo);
 
 		}
