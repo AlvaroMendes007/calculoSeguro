@@ -1,18 +1,26 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-public class Cliente {
-
+public class Cliente implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY , generator = "sequence")
+	private int idCliente;
+	
 	@Column(length=14)
 	private String cpfCnpj;
 	private String nome;
@@ -22,8 +30,8 @@ public class Cliente {
 	private Date dataNascimento;
 	private int idade;
 	
-	@OneToOne(mappedBy = "cpfCnpj")
-	private Calculo calculo;
+	@OneToMany(mappedBy = "clienteId")
+	private List<Calculo> calculo;
 	
 	public Cliente() {
 	}
@@ -35,6 +43,14 @@ public class Cliente {
 		this.sexo = sexo;
 		this.dataNascimento = dataNascimento;
 		this.idade = idade;
+	}
+
+	public int getId() {
+		return idCliente;
+	}
+
+	public void setId(int id) {
+		this.idCliente = id;
 	}
 
 	public String getCpfCnpj() {
@@ -81,7 +97,7 @@ public class Cliente {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cpfCnpj == null) ? 0 : cpfCnpj.hashCode());
+		result = prime * result + idCliente;
 		return result;
 	}
 
@@ -94,10 +110,7 @@ public class Cliente {
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
-		if (cpfCnpj == null) {
-			if (other.cpfCnpj != null)
-				return false;
-		} else if (!cpfCnpj.equals(other.cpfCnpj))
+		if (idCliente != other.idCliente)
 			return false;
 		return true;
 	}

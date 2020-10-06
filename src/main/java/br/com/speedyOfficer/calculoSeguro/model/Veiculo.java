@@ -1,9 +1,11 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+
 
 @Entity
 public class Veiculo {
@@ -17,7 +19,7 @@ public class Veiculo {
 	@JoinColumn(name = "fk_CodigoMarca",referencedColumnName = "codigoMarca")
 	private Marca codigoMarca;
 	
-	@OneToOne(mappedBy = "codigoVeiculo")
+	@OneToOne(mappedBy = "codigoVeiculo", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Calculo calculo;
 	
 	public Veiculo() {

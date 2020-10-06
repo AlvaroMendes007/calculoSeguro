@@ -51,43 +51,33 @@ public class webService {
 	}
 
 	@RequestMapping(value = "/calculo")
-	public ResponseEntity<Object> calculo(@RequestParam String nome, String cpfCnpj, @RequestParam String sexo,
-			@RequestParam String dataNascimento, @RequestParam int codigoVeiculo,
+	public ResponseEntity<Object> calculo(@RequestParam String cpfCnpj, @RequestParam int codigoVeiculo,
 			@RequestParam(required = false) String codigoCupom) throws Exception {
-
-		JSONObject sexoInvalido = new JSONObject(
-				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
 
 		JSONObject codigoVeiculoInvalido = new JSONObject(
 				"{codigoHttp: 400, Mensagem: Verifique o código do veículo, Dica: O código digitado pode não estar correto}");
-		
-		
+
 		veiculoController veiculoController = new veiculoController();
 		new SimpleDateFormat("dd/MM/yyyy");
 		Double valorVeiculo = veiculoController.getValorVeiculoByCod(codigoVeiculo);
 		Double baseSeguro = valorVeiculo * 0.03;
 		DecimalFormat decimalFormat = new DecimalFormat("####.00");
 
-		String[] split = dataNascimento.split("/");
+		Cliente cliente = new Cliente();
+		cliente.setCpfCnpj(clienteService.findCpfbyCpf(cpfCnpj));
+		cliente.setSexo(clienteService.findSexobyCpf(cpfCnpj));
+		cliente.setIdade(clienteService.findIdadeByCpf(cpfCnpj));
+		cliente.setId(clienteService.findIdbyCpf(cpfCnpj));
+		int idade = cliente.getIdade();
+		String sexo = cliente.getSexo();
 		
+
 		String descricaoVeiculo = veiculoController.getDescricaoVeiculoByCod(codigoVeiculo);
 		int codigoMarcaVeiculo = veiculoController.getMarcaVeiculoByCod(codigoVeiculo);
 		Marca marcaVeiculo = new Marca();
 		marcaVeiculo.setId(codigoMarcaVeiculo);
-		
+
 		Veiculo veiculo = new Veiculo(codigoVeiculo, descricaoVeiculo, valorVeiculo, marcaVeiculo);
-
-		int dia = Integer.parseInt(split[0]);
-		int mes = Integer.parseInt(split[1]);
-		int ano = Integer.parseInt(split[2]);
-
-		Period calculoIdade = Period.between(LocalDate.of(ano, mes, dia), LocalDate.now());
-
-		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
-		
-		//String dataFormatada = ano + "-" + mes + "-" + dia;
-		
-		Cliente cliente = new Cliente(cpfCnpj, nome, sexo, new SimpleDateFormat("dd/MM/yyyy").parse(dataNascimento), idade);
 
 		String mensagemSucessoCupom = (codigoCupom == null ? "false"
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
@@ -107,6 +97,8 @@ public class webService {
 		Double totalBase = (baseSeguro + baseSeguro * acrescimoTotal);
 
 		Map<Integer, Double> parcelaMap = new HashMap<>();
+		
+		System.out.println("antes do for");
 
 		for (int parcela = 1; parcela <= 12; parcela++) {
 
@@ -117,21 +109,58 @@ public class webService {
 			valorTotalSeguro -= (valorTotalSeguro * percentualDescontoCupom);
 
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
+
+			System.out.println("antes do calculo");
+			Calculo calculo = new Calculo(null, baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom,
+					parcela, cliente, veiculo);
 			
-			Calculo calculo = new Calculo(1, 200.00, 400.00, "XABLAU", 0.03, 1, cliente, veiculo);
+			System.out.println("antes do calculoservice");
+			
+			//calculoService.insert(calculo);
+			//System.out.println("calculo é = " + calculo.getValorTotal());
 		}
+		
+		Calculo calculo = new Calculo((long) cliente.getId(), 2.0, 3.0, "abc", 0.3, 1, cliente, veiculo);
+		
+		calculoService.insert(calculo);
 
 		JSONObject parcelasObj = new JSONObject("{parcelas: [" + parcelaMap.toString().replace("=", ":") + "]}");
 
+		if (baseSeguro == 0.0) {
+			return new ResponseEntity<>(codigoVeiculoInvalido.toMap(), HttpStatus.BAD_REQUEST);
+		} else {
+			return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
+		}
+	}
+
+	@RequestMapping(value = "/cliente")
+	public ResponseEntity<Object> cliente(@RequestParam String nome, @RequestParam String cpfCnpj,
+			@RequestParam String sexo, @RequestParam String dataNascimento) throws Exception {
+
+		JSONObject sexoInvalido = new JSONObject(
+				"{codigoHttp: 400, Mensagem: Verifique o sexo, Dica: Deve estar como masculino ou feminino}");
+
+		new SimpleDateFormat("dd/MM/yyyy");
+
+		String[] split = dataNascimento.split("/");
+
+		int dia = Integer.parseInt(split[0]);
+		int mes = Integer.parseInt(split[1]);
+		int ano = Integer.parseInt(split[2]);
+
+		Period calculoIdade = Period.between(LocalDate.of(ano, mes, dia), LocalDate.now());
+
+		int idade = Integer.parseInt(calculoIdade.toString().substring(1, 3));
+
+		Cliente cliente = new Cliente(cpfCnpj, nome, sexo, new SimpleDateFormat("dd/MM/yyyy").parse(dataNascimento), idade);
+
 		if (sexo.intern() == "masculino" || sexo.intern() == "feminino") {
-			if (baseSeguro == 0.0) {
-				return new ResponseEntity<>(codigoVeiculoInvalido.toMap(), HttpStatus.BAD_REQUEST);
-			} else {
-				return new ResponseEntity<>(parcelasObj.toMap(), HttpStatus.OK);
-			}
+
+			clienteService.insert(cliente);
+			return new ResponseEntity<>("dados inseridos", HttpStatus.BAD_REQUEST);
+
 		} else
 			return new ResponseEntity<>(sexoInvalido.toMap(), HttpStatus.BAD_REQUEST);
 	}
 
 }
-

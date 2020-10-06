@@ -1,37 +1,47 @@
 package br.com.speedyOfficer.calculoSeguro.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 @Entity
-public class Calculo {
+public class Calculo implements Serializable {
+	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int idCalculo;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long idCalculo;
 	private Double valorBase;
 	private Double valorTotal;
 	private String codigoCupom;
 	private Double percentualDesconto;
 	private int parcela;
 
-	@OneToOne
-	@JoinColumn(name = "fk_cpfCnpj", referencedColumnName = "cpfCnpj")
-	private Cliente cpfCnpj;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@Cascade(value = CascadeType.ALL)
+	@JoinColumn(name = "fk_idCliente", referencedColumnName = "idCliente")
+	private Cliente clienteId;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
+	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_codigoVeiculo", referencedColumnName = "codigoVeiculo")
 	private Veiculo codigoVeiculo;
 
 	public Calculo() {
 	}
 
-	public Calculo(int idCalculo, Double valorBase, Double valorTotal, String codigoCupom, Double percentualDesconto,
-			int parcela, Cliente cpfCnpj, Veiculo codigoVeiculo) {
+	public Calculo(Long idCalculo, Double valorBase, Double valorTotal, String codigoCupom, Double percentualDesconto,
+			int parcela, Cliente clienteId, Veiculo codigoVeiculo) {
 		super();
 		this.idCalculo = idCalculo;
 		this.valorBase = valorBase;
@@ -39,15 +49,15 @@ public class Calculo {
 		this.codigoCupom = codigoCupom;
 		this.percentualDesconto = percentualDesconto;
 		this.parcela = parcela;
-		this.cpfCnpj = cpfCnpj;
+		this.clienteId = clienteId;
 		this.codigoVeiculo = codigoVeiculo;
 	}
 
-	public int getIdCalculo() {
+	public Long getIdCalculo() {
 		return idCalculo;
 	}
 
-	public void setIdCalculo(int idCalculo) {
+	public void setIdCalculo(Long idCalculo) {
 		this.idCalculo = idCalculo;
 	}
 
@@ -91,12 +101,12 @@ public class Calculo {
 		this.parcela = parcela;
 	}
 
-	public Cliente getCpfCnpj() {
-		return cpfCnpj;
+	public Cliente getCliente() {
+		return (Cliente) clienteId;
 	}
 
-	public void setCpfCnpj(Cliente cpfCnpj) {
-		this.cpfCnpj = cpfCnpj;
+	public void setCliente(Cliente cpfCnpj) {
+		this.clienteId = cpfCnpj;
 	}
 
 	public Veiculo getCodigoVeiculo() {
@@ -112,8 +122,8 @@ public class Calculo {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((codigoVeiculo == null) ? 0 : codigoVeiculo.hashCode());
-		result = prime * result + ((cpfCnpj == null) ? 0 : cpfCnpj.hashCode());
-		result = prime * result + idCalculo;
+		result = prime * result + ((clienteId == null) ? 0 : clienteId.hashCode());
+		result = (int) (prime * result + idCalculo);
 		return result;
 	}
 
@@ -131,16 +141,14 @@ public class Calculo {
 				return false;
 		} else if (!codigoVeiculo.equals(other.codigoVeiculo))
 			return false;
-		if (cpfCnpj == null) {
-			if (other.cpfCnpj != null)
+		if (clienteId == null) {
+			if (other.clienteId != null)
 				return false;
-		} else if (!cpfCnpj.equals(other.cpfCnpj))
+		} else if (!clienteId.equals(other.clienteId))
 			return false;
 		if (idCalculo != other.idCalculo)
 			return false;
 		return true;
 	}
-	
-	
 
 }
