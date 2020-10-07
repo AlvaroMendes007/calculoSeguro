@@ -15,8 +15,8 @@ public class Marca implements Serializable {
 	private int codigoMarca;
 	private String descricaoMarca;
 	
-	@OneToMany(mappedBy = "codigoMarca")	
-	private List<Veiculo> veiculo;
+	@OneToMany(mappedBy = "marca")	
+	private List<Veiculo> veiculos;
 	
 	public Marca() {
 	}

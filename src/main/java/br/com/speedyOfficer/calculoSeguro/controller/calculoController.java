@@ -51,8 +51,9 @@ public class calculoController {
 		ArrayList<Calculo> listaCalculo = new ArrayList<Calculo>();
 		
 		Calculo returnCalc = new Calculo();
+				
 		String cpfCnpj = calculoInserido.getCliente().getCpfCnpj();
-		int codigoVeiculo = calculoInserido.getCodigoVeiculo().getCodigoVeiculo();
+		int codigoVeiculo = calculoInserido.getveiculo().getCodigoVeiculo();
 		String codigoCupom = calculoInserido.getCodigoCupom();
 		
 		returnCalc.setCliente(clienteService.findClienteByCpf(cpfCnpj));		 
@@ -84,7 +85,7 @@ public class calculoController {
 				: getDescontoCupomByCupom(codigoCupom).get("sucesso").toString());
 
 		Double percentualDescontoCupom = 0.0;
-
+		
 		if (mensagemSucessoCupom.equals("true")) {
 
 			String[] split = getDescontoCupomByCupom(codigoCupom).get("validade").toString().split("-");
@@ -93,6 +94,8 @@ public class calculoController {
 			int dia = Integer.parseInt(split[2]);
 			Period calculoCupom = Period.between(LocalDate.now(), LocalDate.of(ano, mes, dia));
 
+			System.out.println("sobre o cupom = " + calculoCupom.getDays());
+			
 			percentualDescontoCupom = calculoCupom.getDays() >= 0 ? Double.parseDouble(
 					"0.0" + getDescontoCupomByCupom(codigoCupom).get("percentualDesconto").toString().replace(",", ""))
 					: 0.0;
@@ -120,7 +123,7 @@ public class calculoController {
 			parcelaMap.put(parcela, Double.parseDouble(decimalFormat.format(valorTotalSeguro).replace(",", ".")));
 
 			Calculo calculo = new Calculo(baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom, parcela,
-					cliente, veiculo);
+				cliente, veiculo);
 			
 			calculoObj.put("baseSeguro", baseSeguro);
 			calculoObj.put("valorTotalSeguro", valorTotalSeguro);
@@ -134,10 +137,19 @@ public class calculoController {
 			
 			calculoService.insert(calculo);
 		}
-		
-		System.out.println("calculo = " + listaCalculo);
-		
+				
 		return new ResponseEntity (listaCalculo.toArray(), HttpStatus.OK);
 
 	}
+
+	@RequestMapping(value = "/calculos", method = RequestMethod.GET)
+	public ResponseEntity<Calculo> getAllCalculo(){
+		
+		JSONObject calculoObj = new JSONObject();
+		
+		calculoObj.put("dadosCalculos", calculoService.findAll());
+		
+		return new ResponseEntity(calculoObj.toMap(), HttpStatus.OK);
+	}
+	
 }

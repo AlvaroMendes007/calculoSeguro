@@ -21,9 +21,8 @@ public class Veiculo  implements Serializable{
 	private Double valorVeiculo;
 	
 	@ManyToOne
-	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_idMarca", referencedColumnName = "codigoMarca")
-	private Marca codigoMarca;
+	private Marca marca;
 		
 	public Veiculo() {
 	}
@@ -33,7 +32,7 @@ public class Veiculo  implements Serializable{
 		this.codigoVeiculo = codigoVeiculo;
 		this.descricaoVeiculo = descricaoVeiculo;
 		this.valorVeiculo = valorVeiculo;
-		this.codigoMarca = (Marca) codigoMarca;
+		this.marca = (Marca) codigoMarca;
 	}
 
 	public int getCodigoVeiculo() {
@@ -61,18 +60,18 @@ public class Veiculo  implements Serializable{
 	}
 
 	public Marca getCodigoMarca() {
-		return (Marca) codigoMarca;
+		return (Marca) marca;
 	}
 
 	public void setCodigoMarca(Marca codigoMarca) {
-		this.codigoMarca = (Marca) codigoMarca;
+		this.marca = (Marca) codigoMarca;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((Marca) codigoMarca).getId();
+		result = prime * result + ((Marca) marca).getId();
 		result = prime * result + codigoVeiculo;
 		return result;
 	}
@@ -86,7 +85,7 @@ public class Veiculo  implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Veiculo other = (Veiculo) obj;
-		if (codigoMarca != other.codigoMarca)
+		if (marca != other.marca)
 			return false;
 		if (codigoVeiculo != other.codigoVeiculo)
 			return false;

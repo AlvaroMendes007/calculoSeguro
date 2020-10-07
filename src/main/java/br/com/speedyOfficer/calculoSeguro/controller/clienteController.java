@@ -6,6 +6,7 @@ import java.time.Period;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,7 +58,7 @@ public class clienteController {
 			
 			return ResponseEntity.ok(returnCli);
 		} else {
-			return  (ResponseEntity<Cliente>) ResponseEntity.badRequest();
+			return new ResponseEntity ("A escrita do sexo deve ser masculino ou feminino", HttpStatus.OK);
 		}
 	}
 }

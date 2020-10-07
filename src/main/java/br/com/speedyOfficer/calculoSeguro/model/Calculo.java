@@ -2,6 +2,7 @@ package br.com.speedyOfficer.calculoSeguro.model;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,25 +34,25 @@ public class Calculo implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "fk_idCliente", referencedColumnName = "idCliente")
-	private Cliente clienteId;
+	private Cliente cliente;
 
 	@ManyToOne
-	@JoinColumn(name = "fk_codigoVeiculo", referencedColumnName = "codigoVeiculo")
-	private Veiculo codigoVeiculo;
+	@JoinColumn(name = "fk_veiculo", referencedColumnName = "codigoVeiculo")
+	private Veiculo veiculo;
 
 	public Calculo() {
 	}
 
 	public Calculo(Double valorBase, Double valorTotal, String codigoCupom, Double percentualDesconto,
-			int parcela, Cliente clienteId, Veiculo codigoVeiculo) {
+			int parcela, Cliente clienteId, Veiculo veiculo) {
 		super();
 		this.valorBase = valorBase;
 		this.valorTotal = valorTotal;
 		this.codigoCupom = codigoCupom;
 		this.percentualDesconto = percentualDesconto;
 		this.parcela = parcela;
-		this.clienteId = clienteId;
-		this.codigoVeiculo = (Veiculo) codigoVeiculo;
+		this.cliente = clienteId;
+		this.veiculo = (Veiculo) veiculo;
 	}
 
 	public Double getValorBase() {
@@ -95,19 +96,19 @@ public class Calculo implements Serializable {
 	}
 
 	public Cliente getCliente() {
-		return (Cliente) clienteId;
+		return (Cliente) cliente;
 	}
 
 	public void setCliente(Cliente cpfCnpj) {
-		this.clienteId = cpfCnpj;
+		this.cliente = cpfCnpj;
 	}
 
-	public Veiculo getCodigoVeiculo() {
-		return (Veiculo) codigoVeiculo;
+	public Veiculo getveiculo() {
+		return (Veiculo) veiculo;
 	}
 
-	public void setCodigoVeiculo(Veiculo codigoVeiculo) {
-		this.codigoVeiculo = (Veiculo) codigoVeiculo;
+	public void setveiculo(Veiculo veiculo) {
+		this.veiculo = (Veiculo) veiculo;
 	}
 
 	
