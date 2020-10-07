@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.SQLInsert;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 public class Cliente implements Serializable {
@@ -27,6 +27,7 @@ public class Cliente implements Serializable {
 	private String sexo;
 	
 	@Temporal(TemporalType.DATE)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private Date dataNascimento;
 	private int idade;
 	

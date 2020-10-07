@@ -6,10 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -18,12 +15,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import br.com.speedyOfficer.calculoSeguro.model.Calculo;
-import br.com.speedyOfficer.calculoSeguro.model.Cliente;
 import br.com.speedyOfficer.calculoSeguro.model.Marca;
 import br.com.speedyOfficer.calculoSeguro.model.Veiculo;
 import br.com.speedyOfficer.calculoSeguro.repositories.VeiculoRepository;
-import br.com.speedyOfficer.calculoSeguro.service.CalculoService;
 
 @Configuration
 @Profile("dev")

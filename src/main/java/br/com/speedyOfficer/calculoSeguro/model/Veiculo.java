@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
@@ -25,10 +24,7 @@ public class Veiculo  implements Serializable{
 	@Cascade(value = CascadeType.ALL)
 	@JoinColumn(name = "fk_idMarca", referencedColumnName = "codigoMarca")
 	private Marca codigoMarca;
-	
-	//@OneToOne
-	//private Calculo calculo;
-	
+		
 	public Veiculo() {
 	}
 

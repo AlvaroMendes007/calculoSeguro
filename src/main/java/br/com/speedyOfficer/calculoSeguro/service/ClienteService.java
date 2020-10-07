@@ -1,7 +1,5 @@
 package br.com.speedyOfficer.calculoSeguro.service;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,23 +17,12 @@ public class ClienteService {
 			cliente.save(clienteInserido);		
 	}
 
-	public int findIdadeByCpf(String cpf) {
+	public Cliente findClienteByCpf(String cpf) {
 
-		return cliente.findIdadeBycpfCnpj(cpf).getIdade();
-	}
-
-	public String findCpfbyCpf(String cpf) {
-
-		return cliente.findCpfBycpfCnpj(cpf).getCpfCnpj();
-	}
-
-	public String findSexobyCpf(String cpf) {
-
-		return cliente.findSexoBycpfCnpj(cpf).getSexo();
+		return cliente.findClienteBycpfCnpj(cpf);
 	}
 	
-	public int findIdbyCpf(String cpf) {
-
-		return cliente.findSexoBycpfCnpj(cpf).getId();
+	public Cliente addCliente(Cliente newCliente) {
+		return newCliente;
 	}
 }
