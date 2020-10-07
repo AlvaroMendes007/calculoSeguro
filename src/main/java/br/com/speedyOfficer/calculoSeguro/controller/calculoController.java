@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
 import org.json.XML;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,11 +45,14 @@ public class calculoController {
 	}
 
 	@RequestMapping(value = "/calculo", method = RequestMethod.POST)
-	public ResponseEntity<Object> salvarCalculo(@RequestBody Calculo calculoInserido) throws Exception {
+	public ResponseEntity<Calculo> salvarCalculo(@RequestBody Calculo calculoInserido) throws Exception {
 
+		JSONObject calculoObj = new JSONObject();
+		ArrayList<Calculo> listaCalculo = new ArrayList<Calculo>();
+		
 		Calculo returnCalc = new Calculo();
-		String cpfCnpj = "123";
-		int codigoVeiculo = 505326;
+		String cpfCnpj = calculoInserido.getCliente().getCpfCnpj();
+		int codigoVeiculo = calculoInserido.getCodigoVeiculo().getCodigoVeiculo();
 		String codigoCupom = calculoInserido.getCodigoCupom();
 		
 		returnCalc.setCliente(clienteService.findClienteByCpf(cpfCnpj));		 
@@ -61,6 +66,9 @@ public class calculoController {
 		cliente.setSexo(clienteService.findClienteByCpf(cpfCnpj).getSexo());
 		cliente.setIdade(clienteService.findClienteByCpf(cpfCnpj).getIdade());
 		cliente.setId(clienteService.findClienteByCpf(cpfCnpj).getId());
+		cliente.setNome(clienteService.findClienteByCpf(cpfCnpj).getNome());
+		cliente.setDataNascimento(clienteService.findClienteByCpf(cpfCnpj).getDataNascimento());
+		cliente.setCpfCnpj(clienteService.findClienteByCpf(cpfCnpj).getCpfCnpj());
 		
 		int idade = cliente.getIdade();
 		String sexo = cliente.getSexo();
@@ -113,11 +121,23 @@ public class calculoController {
 
 			Calculo calculo = new Calculo(baseSeguro, valorTotalSeguro, codigoCupom, percentualDescontoCupom, parcela,
 					cliente, veiculo);
+			
+			calculoObj.put("baseSeguro", baseSeguro);
+			calculoObj.put("valorTotalSeguro", valorTotalSeguro);
+			calculoObj.put("codigoCupom", codigoCupom);
+			calculoObj.put("percentualDescontoCupom", percentualDescontoCupom);
+			calculoObj.put("parcela", parcela);
+			calculoObj.put("idCliente", cliente.getId());
+			calculoObj.put("codigoVeiculo", veiculo.getCodigoVeiculo());
 
+			listaCalculo.add(calculo);
+			
 			calculoService.insert(calculo);
 		}
-
-		return ResponseEntity.ok("Dados de calculo inseridos!");
+		
+		System.out.println("calculo = " + listaCalculo);
+		
+		return new ResponseEntity (listaCalculo.toArray(), HttpStatus.OK);
 
 	}
 }
