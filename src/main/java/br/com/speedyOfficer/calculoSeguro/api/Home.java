@@ -9,7 +9,12 @@ public class Home {
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home() {
-		return "<html> <body> <a href='/calculo?cpfCnpj=&sexo=&dataNascimento=&codigoVeiculo=&codigoCupom='> Calculo </a> </body> </html>";
-	}	
+		return   "<html> "
+				+ "	<body style='text-align: center'> "
+				+ "		<h3>Para inserção de cliente basta inserir no corpo da requisição os campos {'cpfCnpj': valor, 'nome': valor, 'dataNascimento': valor, 'sexo': valor} <br><br><br>"
+				+ "		Para inserção de calculo basta inserir no corpo da requisição os campos {'cpfCnpj': valor, 'codigoVeiculo': valor, (Opcional) 'codigoCupom': valor} se caso o cupom estiver expirado não haverá desconto!</h3>"
+				+ " </body> "
+				+"</html>";
+	}
 
 }
